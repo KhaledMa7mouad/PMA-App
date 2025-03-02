@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "919060318384",
+    "project_id": "pma-app-7ab0b",
+    "storage_bucket": "pma-app-7ab0b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:919060318384:android:3d1f3075d7ddd7ca2d9375",
+        "android_client_info": {
+          "package_name": "com.example.pmaapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4Wt1Bi3ayw-zEJwAYRaVIJv2CMdUcico"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
