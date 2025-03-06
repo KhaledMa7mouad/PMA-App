@@ -35,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.pmaapp.R
+import com.example.pmaapp.components.AnimatedHeartRatePulseCard
 import com.example.pmaapp.components.CategoryCard
 import com.example.pmaapp.ui.theme.FotGreen
 
@@ -212,6 +213,7 @@ fun HomeScreen(modifier: Modifier = Modifier , coachName: String, teamName: Stri
             )
 
         }
+        AnimatedHeartRatePulseCard()
 
 
     }
