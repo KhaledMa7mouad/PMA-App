@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -59,7 +61,9 @@ private lateinit var auth: FirebaseAuth
 
 @Composable
 fun SigninScreen(navController: NavController) {
-    var email by remember { mutableStateOf("") } // Changed from username to email
+    var email by remember { mutableStateOf("") }
+    var coachName by remember { mutableStateOf("") }
+    var teamName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
@@ -73,15 +77,20 @@ fun SigninScreen(navController: NavController) {
             .background(Color.Black)
             .padding(16.dp)
     ) {
+        // Using verticalScroll for natural scrolling of the entire column
         Column(
-            modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(20.dp))
 
             // Logo
             Image(
-                painter = painterResource(id = R.drawable.player_1), // Replace with your logo resource
-                contentDescription = "Logo", modifier = Modifier.size(400.dp)
+                painter = painterResource(id = R.drawable.player_1),
+                contentDescription = "Logo",
+                modifier = Modifier.size(400.dp)
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -108,13 +117,10 @@ fun SigninScreen(navController: NavController) {
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text(
-                    "Email",
-                    color = Color.White
-                ) },
+                label = { Text("Email", color = Color.White) },
                 leadingIcon = {
                     Icon(
-                        painter = painterResource(id = R.drawable.baseline_supervised_user_circle_24), // Replace with your icon resource
+                        painter = painterResource(id = R.drawable.baseline_supervised_user_circle_24),
                         contentDescription = "Email Icon",
                         tint = FotGreen
                     )
@@ -141,16 +147,12 @@ fun SigninScreen(navController: NavController) {
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text(
-                    "Password" ,
-                    color = Color.White
-                ) },
+                label = { Text("Password", color = Color.White) },
                 leadingIcon = {
                     Icon(
-                        painter = painterResource(id = R.drawable.baseline_password_24), // Replace with your icon resource
+                        painter = painterResource(id = R.drawable.baseline_password_24),
                         contentDescription = "Password Icon",
                         tint = FotGreen
-
                     )
                 },
                 trailingIcon = {
@@ -182,19 +184,80 @@ fun SigninScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Forgot Password
+            // Forgot Password Link
             Row(
-                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
             ) {
                 Text(
                     text = "Forgot Password?",
                     color = FotGreen,
                     style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium),
                     modifier = Modifier.clickable {
-                        // Navigate to forgot password screen (if you have one)
+                        // Navigate to forgot password screen (if available)
                     }
                 )
             }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Coach Name Input
+            OutlinedTextField(
+                value = coachName,
+                onValueChange = { coachName = it },
+                label = { Text("Coach Name", color = Color.White) },
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_supervised_user_circle_24),
+                        contentDescription = "Coach Name Icon",
+                        tint = FotGreen
+                    )
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.White,
+                    unfocusedPlaceholderColor = FotGreen,
+                    focusedContainerColor = Color.DarkGray,
+                    unfocusedContainerColor = Color.DarkGray,
+                    focusedBorderColor = FotGreen,
+                    unfocusedBorderColor = Color.Gray,
+                    focusedLabelColor = FotGreen,
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text, imeAction = ImeAction.Next
+                ),
+                shape = RoundedCornerShape(16.dp)
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Team Name Input
+            OutlinedTextField(
+                value = teamName,
+                onValueChange = { teamName = it },
+                label = { Text("Team Name", color = Color.White) },
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_supervised_user_circle_24),
+                        contentDescription = "Team Name Icon",
+                        tint = FotGreen
+                    )
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.White,
+                    unfocusedPlaceholderColor = FotGreen,
+                    focusedContainerColor = Color.DarkGray,
+                    unfocusedContainerColor = Color.DarkGray,
+                    focusedBorderColor = FotGreen,
+                    unfocusedBorderColor = Color.Gray,
+                    focusedLabelColor = FotGreen,
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text, imeAction = ImeAction.Next
+                ),
+                shape = RoundedCornerShape(16.dp)
+            )
 
             Spacer(modifier = Modifier.height(30.dp))
 
@@ -210,7 +273,7 @@ fun SigninScreen(navController: NavController) {
                             // Check if email is verified
                             if (user != null && user.isEmailVerified) {
                                 // Navigate to home screen
-                                navController.navigate(AppRoutes.HOME_ROUTE)
+                                navController.navigate("home/$coachName/$teamName")
                             } else {
                                 Toast.makeText(
                                     context,
@@ -250,7 +313,8 @@ fun SigninScreen(navController: NavController) {
 
             // Sign Up Link
             Row(
-                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = "Don’t have an account?",
