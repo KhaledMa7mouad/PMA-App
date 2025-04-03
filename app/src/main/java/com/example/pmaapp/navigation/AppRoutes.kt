@@ -1,6 +1,7 @@
 // File: AppNavHost.kt
 package com.example.pmaapp.navigation
 
+import AddPlayerScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
@@ -21,6 +22,7 @@ object AppRoutes {
     const val HOME_ROUTE = "home/{coachName}/{teamName}"
     const val SPLASH_ROUTE = "splash"
     const val ONBOARDING_ROUTE = "onboarding"
+    const val ADDPLAYER_ROUTE = "addplayer"
 }
 
 @Composable
@@ -36,6 +38,7 @@ fun AppNavHost(modifier: Modifier = Modifier) {
         composable(route = AppRoutes.SIGNIN_ROUTE) { SigninScreen(navController) }
         composable(route = AppRoutes.SPLASH_ROUTE) { SplashScreen(navController) }
         composable(route = AppRoutes.ONBOARDING_ROUTE) { OnboardingScreen(navController) }
+        composable(route = AppRoutes.ADDPLAYER_ROUTE) { AddPlayerScreen(navController) }
         // Here we add the arguments for coachName and teamName.
         composable(
             route = AppRoutes.HOME_ROUTE,
@@ -46,7 +49,7 @@ fun AppNavHost(modifier: Modifier = Modifier) {
         ) { backStackEntry ->
             val coachName = backStackEntry.arguments?.getString("coachName") ?: ""
             val teamName = backStackEntry.arguments?.getString("teamName") ?: ""
-            HomeScreen(coachName = coachName, teamName = teamName)
+            HomeScreen(coachName = coachName, teamName = teamName , navController = navController)
         }
     }
 }
