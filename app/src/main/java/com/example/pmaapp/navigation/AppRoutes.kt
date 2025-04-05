@@ -1,7 +1,7 @@
 // File: AppNavHost.kt
 package com.example.pmaapp.navigation
 
-import AddPlayerScreen
+//import AddPlayerScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
@@ -38,7 +38,7 @@ fun AppNavHost(modifier: Modifier = Modifier) {
         composable(route = AppRoutes.SIGNIN_ROUTE) { SigninScreen(navController) }
         composable(route = AppRoutes.SPLASH_ROUTE) { SplashScreen(navController) }
         composable(route = AppRoutes.ONBOARDING_ROUTE) { OnboardingScreen(navController) }
-        composable(route = AppRoutes.ADDPLAYER_ROUTE) { AddPlayerScreen(navController) }
+      //  composable(route = AppRoutes.ADDPLAYER_ROUTE) { AddPlayerScreen(navController) }
         // Here we add the arguments for coachName and teamName.
         composable(
             route = AppRoutes.HOME_ROUTE,
