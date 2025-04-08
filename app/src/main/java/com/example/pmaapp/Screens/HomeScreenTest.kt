@@ -175,7 +175,9 @@ fun HomeScreen(modifier: Modifier = Modifier , coachName: String, teamName: Stri
                 R.drawable.myteam,
                 "My Team",
                 "Monitor Your Players",
-                onClick = {},
+                onClick = {
+                    navController.navigate(AppRoutes.PLAYERS_LIST_ROUTE)
+                },
                 modifier = Modifier.weight(1f)
 
             )

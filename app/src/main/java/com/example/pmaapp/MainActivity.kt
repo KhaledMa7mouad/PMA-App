@@ -8,11 +8,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.rememberNavController
+
 import com.example.pmaapp.navigation.AppNavHost
-import com.example.pmaapp.screens.AddPlayerScreen
+
 import com.example.pmaapp.ui.theme.PMAAppTheme
-import com.google.firebase.FirebaseApp
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,11 +21,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             PMAAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    //AppNavHost(modifier = Modifier.padding(innerPadding))
-                    AddPlayerScreen()
+                    AppNavHost(modifier = Modifier.padding(innerPadding))
+
                 }
             }
         }
     }
 }
+//khaledmahmouad122@gmail.com
+//01001272122
+//Khaled Mahmoud
+//Fc Test
 

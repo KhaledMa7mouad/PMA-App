@@ -11,6 +11,9 @@ interface PlayerDao {
     @Query("SELECT * FROM player")
     fun getAllPlayers(): Flow<List<Player>>
 
+    @Query("SELECT * FROM player WHERE id = :playerId")
+    suspend fun getPlayerById(playerId: Int): Player?
+
     @Delete
     suspend fun deletePlayer(player: Player)
 }
