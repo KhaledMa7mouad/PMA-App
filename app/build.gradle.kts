@@ -23,14 +23,33 @@ android {
     }
 
     buildTypes {
-        release {
+        getByName("release") {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // <-- escape the Java quotes here!
+            buildConfigField(
+                "String",
+                "GEMINI_API_KEY",
+                "\"AIzaSyCXPQSH72vKa_BnPe6l1reaO4Ns67-68zk\""
+            )
+        }
+
+        getByName("debug") {
+            buildConfigField(
+                "String",
+                "GEMINI_API_KEY",
+                "\"AIzaSyCXPQSH72vKa_BnPe6l1reaO4Ns67-68zk\""
+            )
         }
     }
+
+
+
+
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -39,6 +58,7 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 }
@@ -59,8 +79,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation("androidx.navigation:navigation-compose:2.8.6")
-    implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
+    implementation("androidx.navigation:navigation-compose:2.8.9")
+    implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.accompanist:accompanist-pager:0.32.0")
@@ -68,5 +88,7 @@ dependencies {
     implementation("androidx.room:room-runtime:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 }

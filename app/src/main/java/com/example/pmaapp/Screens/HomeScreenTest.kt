@@ -215,7 +215,9 @@ fun HomeScreen(modifier: Modifier = Modifier , coachName: String, teamName: Stri
                 R.drawable.aicoach,
                 "AI Assistant",
                 "Chat with AI",
-                onClick = {},
+                onClick = {
+                    navController.navigate(AppRoutes.GEMINI_CHAT_ROUTE)
+                },
                 modifier = Modifier.weight(1f)
             )
 

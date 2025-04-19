@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.pmaapp.Screens.GeminiChatScreen
 import com.example.pmaapp.Screens.HomeScreen
 import com.example.pmaapp.Screens.OnboardingScreen
 import com.example.pmaapp.Screens.PlayerDetailScreen
@@ -31,6 +32,7 @@ object AppRoutes {
     const val ADDPLAYER_ROUTE = "addplayer"
     const val PLAYERS_LIST_ROUTE = "players_list"
     const val PLAYER_DETAIL_ROUTE = "player_detail/{playerId}"
+    const val GEMINI_CHAT_ROUTE = "gemini_chat"
 }
 
 @Composable
@@ -79,5 +81,21 @@ fun AppNavHost(modifier: Modifier = Modifier) {
             val teamName = backStackEntry.arguments?.getString("teamName") ?: ""
             HomeScreen(coachName = coachName, teamName = teamName, navController = navController)
         }
+
+// In your Navigation setup
+        composable(AppRoutes.GEMINI_CHAT_ROUTE) { backStackEntry ->
+            // You can pass initial prompts via navigation arguments if needed
+            val initialPrompt = backStackEntry.arguments?.getString("prompt")
+                ?: "Help with player stats, team management and tactics"
+
+            GeminiChatScreen(
+                navController = navController,
+                initialPrompt = initialPrompt
+            )
+        }
+
+
+
+
     }
 }
