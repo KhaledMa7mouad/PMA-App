@@ -1,31 +1,20 @@
-// File: AppNavHost.kt
 package com.example.pmaapp.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.pmaapp.Screens.GeminiChatScreen
-import com.example.pmaapp.Screens.HomeScreen
-import com.example.pmaapp.Screens.OnboardingScreen
-import com.example.pmaapp.Screens.PlayerDetailScreen
-import com.example.pmaapp.Screens.PlayersListScreen
-import com.example.pmaapp.Screens.SigninScreen
-import com.example.pmaapp.Screens.SignupScreen
-import com.example.pmaapp.Screens.SplashScreen
+import com.example.pmaapp.Screens.*
+import com.example.pmaapp.ViewModels.AIPredictionViewModel
 import com.example.pmaapp.screens.AddPlayerScreen
-
-//import AddPlayerScreen
-
-
 
 object AppRoutes {
     const val SIGNUP_ROUTE = "signup"
     const val SIGNIN_ROUTE = "signin"
-    // Updated HOME_ROUTE to include two parameters: coachName and teamName.
     const val HOME_ROUTE = "home/{coachName}/{teamName}"
     const val SPLASH_ROUTE = "splash"
     const val ONBOARDING_ROUTE = "onboarding"
@@ -33,69 +22,58 @@ object AppRoutes {
     const val PLAYERS_LIST_ROUTE = "players_list"
     const val PLAYER_DETAIL_ROUTE = "player_detail/{playerId}"
     const val GEMINI_CHAT_ROUTE = "gemini_chat"
+    const val AI_MODEL_SELECTION_ROUTE = "ai_model_selection"
+    const val AI_PLAYER_SELECTION_ROUTE = "ai_player_selection"
+    const val AI_RESULT_ROUTE = "ai_result"
 }
 
 @Composable
 fun AppNavHost(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
-
+    val aiVm: AIPredictionViewModel = viewModel()
     NavHost(
         navController = navController,
         startDestination = AppRoutes.SPLASH_ROUTE,
         modifier = modifier
     ) {
-        composable(route = AppRoutes.SIGNUP_ROUTE) { SignupScreen(navController = navController) }
-        composable(route = AppRoutes.SIGNIN_ROUTE) { SigninScreen(navController) }
-        composable(route = AppRoutes.SPLASH_ROUTE) { SplashScreen(navController) }
-        composable(route = AppRoutes.ONBOARDING_ROUTE) { OnboardingScreen(navController) }
-        composable(route = AppRoutes.ADDPLAYER_ROUTE) { AddPlayerScreen(navController) }
-
-        // Players list screen
-        composable(route = AppRoutes.PLAYERS_LIST_ROUTE) {
-            PlayersListScreen(navController)
-        }
-
-        // Player detail screen with player ID parameter
+        composable(AppRoutes.SIGNUP_ROUTE) { SignupScreen(navController) }
+        composable(AppRoutes.SIGNIN_ROUTE) { SigninScreen(navController) }
+        composable(AppRoutes.SPLASH_ROUTE) { SplashScreen(navController) }
+        composable(AppRoutes.ONBOARDING_ROUTE) { OnboardingScreen(navController) }
+        composable(AppRoutes.ADDPLAYER_ROUTE) { AddPlayerScreen(navController) }
+        composable(AppRoutes.PLAYERS_LIST_ROUTE) { PlayersListScreen(navController) }
         composable(
             route = AppRoutes.PLAYER_DETAIL_ROUTE,
-            arguments = listOf(
-                navArgument("playerId") {
-                    type = NavType.IntType
-                }
-            )
+            arguments = listOf(navArgument("playerId") { type = NavType.IntType })
         ) { backStackEntry ->
-            // Extract player ID from navigation arguments
-            val playerId = backStackEntry.arguments?.getInt("playerId") ?: -1
-            PlayerDetailScreen(navController, playerId)
+            val id = backStackEntry.arguments?.getInt("playerId") ?: -1
+            PlayerDetailScreen(navController, id)
         }
-
-        // Here we add the arguments for coachName and teamName.
         composable(
             route = AppRoutes.HOME_ROUTE,
             arguments = listOf(
                 navArgument("coachName") { type = NavType.StringType },
                 navArgument("teamName") { type = NavType.StringType }
             )
-        ) { backStackEntry ->
-            val coachName = backStackEntry.arguments?.getString("coachName") ?: ""
-            val teamName = backStackEntry.arguments?.getString("teamName") ?: ""
-            HomeScreen(coachName = coachName, teamName = teamName, navController = navController)
+        ) { entry ->
+            val coach = entry.arguments?.getString("coachName") ?: ""
+            val team = entry.arguments?.getString("teamName") ?: ""
+            HomeScreen(coachName = coach, teamName = team, navController = navController)
+        }
+        composable(AppRoutes.GEMINI_CHAT_ROUTE) {
+            GeminiChatScreen(navController, it.arguments?.getString("prompt") ?: "")
         }
 
-// In your Navigation setup
-        composable(AppRoutes.GEMINI_CHAT_ROUTE) { backStackEntry ->
-            // You can pass initial prompts via navigation arguments if needed
-            val initialPrompt = backStackEntry.arguments?.getString("prompt")
-                ?: "Help with player stats, team management and tactics"
+        // AI Prediction flow - Fixed with correct screens
 
-            GeminiChatScreen(
-                navController = navController,
-                initialPrompt = initialPrompt
-            )
+        composable(AppRoutes.AI_MODEL_SELECTION_ROUTE) {
+            AIModelSelectionScreen(navController, viewModel = aiVm)
         }
-
-
-
-
+        composable(AppRoutes.AI_PLAYER_SELECTION_ROUTE) {
+            AIPlayerSelectionScreen(navController, viewModel = aiVm)
+        }
+        composable(AppRoutes.AI_RESULT_ROUTE) {
+            AIResultScreen(navController, viewModel = aiVm)
+        }
     }
 }

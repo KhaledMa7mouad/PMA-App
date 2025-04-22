@@ -207,7 +207,10 @@ fun HomeScreen(modifier: Modifier = Modifier , coachName: String, teamName: Stri
                 R.drawable.insights,
                 "Insights",
                 "Get Facts About Players",
-                onClick = {},
+                onClick = {
+                    navController.navigate(AppRoutes.AI_MODEL_SELECTION_ROUTE)
+
+                },
                 modifier = Modifier.weight(1f)
             )
             CategoryCard(
