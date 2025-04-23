@@ -8,9 +8,14 @@ data class PredictPositionRequest(
 )
 
 data class PredictPositionResponse(
-    val predictedPosition: String?,
-    val confidence: Float
-)
+    // Changed to match actual API response format
+    val prediction: List<String>?,
+    val confidence: Float = 0.85f
+) {
+    // Add a convenience property to maintain compatibility with existing code
+    val predictedPosition: String?
+        get() = prediction?.firstOrNull()
+}
 
 // Substitutes Prediction
 data class PlayerSubstituteData(

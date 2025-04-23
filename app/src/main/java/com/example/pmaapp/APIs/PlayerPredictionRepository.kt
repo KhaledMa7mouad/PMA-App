@@ -9,8 +9,7 @@ class PlayerPredictionRepository {
 
     suspend fun predictPosition(player: Player): Result<PredictPositionResponse> = withContext(Dispatchers.IO) {
         try {
-            // Fix: Convert Player object to properly formatted features list as required by API
-            // The API expects specific values in a specific order
+            // Convert Player object to properly formatted features list as required by API
             val features = listOf(
                 player.height.toFloat(),
                 player.weight.toFloat(),
@@ -56,13 +55,15 @@ class PlayerPredictionRepository {
             )
 
             val response = api.predictPosition(PredictPositionRequest(features))
+
             if (response.isSuccessful && response.body() != null) {
-                // Add this check to ensure we don't return a response with null position
                 val responseBody = response.body()!!
-                if (responseBody.predictedPosition == null) {
-                    // If API returns null position, use the player's current position or "Unknown"
+
+                // Check if prediction is null or empty
+                if (responseBody.prediction.isNullOrEmpty()) {
+                    // If API returns null or empty prediction, use the player's current position or "Unknown"
                     val fixedResponse = PredictPositionResponse(
-                        predictedPosition = player.bestPosition ?: "Unknown",
+                        prediction = listOf(player.bestPosition ?: "Unknown"),
                         confidence = responseBody.confidence
                     )
                     Result.success(fixedResponse)
@@ -76,6 +77,8 @@ class PlayerPredictionRepository {
             Result.failure(e)
         }
     }
+
+    // Rest of the repository methods remain unchanged
 
     suspend fun predictSubstitutes(players: List<Player>): Result<PredictSubsResponse> = withContext(Dispatchers.IO) {
         try {
