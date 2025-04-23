@@ -79,7 +79,6 @@ fun PlayerDetailScreen(navController: NavController, playerId: Int) {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    modifier = Modifier.statusBarsPadding(),
                     title = { Text(text = player?.name ?: "Player Details") },
                     navigationIcon = {
                         IconButton(onClick = { navController.navigateUp() }) {

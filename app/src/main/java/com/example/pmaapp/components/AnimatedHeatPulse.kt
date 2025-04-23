@@ -65,12 +65,6 @@ fun AnimatedHeartRatePulseCard(modifier: Modifier = Modifier) {
                     .size(120.dp)
                     .scale(scale) // Animate the scale for a pulsing effect.
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "72 BPM",
-                color = Color.White,
-                style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            )
         }
     }
 }
