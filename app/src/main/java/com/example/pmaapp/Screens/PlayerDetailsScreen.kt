@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -37,10 +38,24 @@ fun PlayerDetailScreen(navController: NavController, playerId: Int) {
     // State to hold player info
     var player by remember { mutableStateOf<Player?>(null) }
 
+    // State for delete confirmation dialog
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
     // Load player data when screen is first composed
     LaunchedEffect(key1 = playerId) {
         scope.launch {
             player = db.playerDao.getPlayerById(playerId)
+        }
+    }
+
+    // Function to handle player deletion
+    fun deletePlayer() {
+        player?.let { playerData ->
+            scope.launch {
+                db.playerDao.deletePlayer(playerData)
+                // Navigate back to players list screen
+                navController.navigateUp()
+            }
         }
     }
 
@@ -217,6 +232,31 @@ fun PlayerDetailScreen(navController: NavController, playerId: Int) {
                     DetailItem("Best Position", playerData.bestPosition, Modifier.fillMaxWidth())
 
                     Spacer(modifier = Modifier.height(24.dp))
+
+                    // Add delete button at the bottom
+                    Button(
+                        onClick = { showDeleteDialog = true },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        Text(
+                            text = "Delete Player",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    // Add some space at the bottom for better UI
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             } ?: run {
                 // Loading or error state
@@ -230,6 +270,33 @@ fun PlayerDetailScreen(navController: NavController, playerId: Int) {
                 }
             }
         }
+    }
+
+    // Confirmation dialog
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Player") },
+            text = { Text("Are you sure you want to delete ${player?.name}? This action cannot be undone.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        deletePlayer()
+                        showDeleteDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showDeleteDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 
