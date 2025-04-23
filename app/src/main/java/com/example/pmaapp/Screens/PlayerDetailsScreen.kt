@@ -1,4 +1,4 @@
-package com.example.pmaapp.Screens
+package com.example.pmaapp.Screens // Changed from Screens to screens to match the package structure
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -41,10 +41,21 @@ fun PlayerDetailScreen(navController: NavController, playerId: Int) {
     // State for delete confirmation dialog
     var showDeleteDialog by remember { mutableStateOf(false) }
 
+    // State for snackbar
+    val snackbarHostState = remember { SnackbarHostState() }
+
     // Load player data when screen is first composed
     LaunchedEffect(key1 = playerId) {
         scope.launch {
-            player = db.playerDao.getPlayerById(playerId)
+            try {
+                val fetchedPlayer = db.playerDao.getPlayerById(playerId)
+                player = fetchedPlayer
+                if (fetchedPlayer == null) {
+                    snackbarHostState.showSnackbar("Player not found")
+                }
+            } catch (e: Exception) {
+                snackbarHostState.showSnackbar("Error loading player: ${e.localizedMessage}")
+            }
         }
     }
 
@@ -52,9 +63,14 @@ fun PlayerDetailScreen(navController: NavController, playerId: Int) {
     fun deletePlayer() {
         player?.let { playerData ->
             scope.launch {
-                db.playerDao.deletePlayer(playerData)
-                // Navigate back to players list screen
-                navController.navigateUp()
+                try {
+                    db.playerDao.deletePlayer(playerData)
+                    snackbarHostState.showSnackbar("Player deleted successfully")
+                    // Navigate back to players list screen
+                    navController.navigateUp()
+                } catch (e: Exception) {
+                    snackbarHostState.showSnackbar("Error deleting player: ${e.localizedMessage}")
+                }
             }
         }
     }
@@ -78,6 +94,9 @@ fun PlayerDetailScreen(navController: NavController, playerId: Int) {
                         titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 )
+            },
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState)
             }
         ) { paddingValues ->
             player?.let { playerData ->

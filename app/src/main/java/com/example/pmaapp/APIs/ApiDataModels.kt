@@ -8,7 +8,7 @@ data class PredictPositionRequest(
 )
 
 data class PredictPositionResponse(
-    val predictedPosition: String,
+    val predictedPosition: String?,
     val confidence: Float
 )
 
@@ -58,7 +58,7 @@ data class PlayerSubstituteData(
 data class SubstituteRecommendation(
     val name: String,
     val score: Float,
-    val compatibility: String
+    val compatibility: String?
 )
 
 data class PredictSubsResponse(

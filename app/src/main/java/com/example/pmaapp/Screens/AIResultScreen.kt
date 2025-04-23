@@ -128,20 +128,15 @@ private fun ResultContent(prediction: PredictionResult) {
                     modifier = Modifier.padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        "Best Position",
-                        style = MaterialTheme.typography.titleLarge
-                    )
+                    Text("Best Position", style = MaterialTheme.typography.titleLarge)
                     Spacer(Modifier.height(16.dp))
+                    // Improve the null handling here too
                     Text(
-                        resp.predictedPosition,
+                        resp.predictedPosition?.takeIf { it.isNotBlank() } ?: "Position not available",
                         style = MaterialTheme.typography.headlineMedium
                     )
                     Spacer(Modifier.height(8.dp))
-                    Text(
-                        "Confidence: ${(resp.confidence * 100).toInt()}%",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                    Text("Confidence: ${(resp.confidence * 100).toInt()}%")
                 }
             }
         }
@@ -152,15 +147,8 @@ private fun ResultContent(prediction: PredictionResult) {
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Text(
-                        "Recommended Substitutes",
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Recommended Substitutes", style = MaterialTheme.typography.titleLarge)
                     LazyColumn {
                         items(resp.recommendations) { rec ->
                             Card(
@@ -170,8 +158,11 @@ private fun ResultContent(prediction: PredictionResult) {
                             ) {
                                 Column(Modifier.padding(16.dp)) {
                                     Text(rec.name, style = MaterialTheme.typography.titleMedium)
-                                    Text("Score: ${rec.score}", style = MaterialTheme.typography.bodyMedium)
-                                    Text("Compatibility: ${rec.compatibility}", style = MaterialTheme.typography.bodyMedium)
+                                    Text("Score: ${rec.score}")
+                                    Text( // Fix 2
+                                        "Compatibility: ${rec.compatibility ?: "No data"}",
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
                                 }
                             }
                         }
@@ -190,13 +181,10 @@ private fun ResultContent(prediction: PredictionResult) {
                     modifier = Modifier.padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        "Predicted Rating",
-                        style = MaterialTheme.typography.titleLarge
-                    )
+                    Text("Predicted Rating", style = MaterialTheme.typography.titleLarge)
                     Spacer(Modifier.height(16.dp))
-                    Text(
-                        resp.predictedRating.toString(),
+                    Text( // Fix 3
+                        "%.1f".format(resp.predictedRating),
                         style = MaterialTheme.typography.headlineMedium
                     )
                 }
@@ -213,13 +201,10 @@ private fun ResultContent(prediction: PredictionResult) {
                     modifier = Modifier.padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        "Predicted Market Value",
-                        style = MaterialTheme.typography.titleLarge
-                    )
+                    Text("Predicted Market Value", style = MaterialTheme.typography.titleLarge)
                     Spacer(Modifier.height(16.dp))
-                    Text(
-                        "€${resp.predictedValue}",
+                    Text( // Fix 4
+                        "€%,d".format(resp.predictedValue),
                         style = MaterialTheme.typography.headlineMedium
                     )
                 }
@@ -236,13 +221,10 @@ private fun ResultContent(prediction: PredictionResult) {
                     modifier = Modifier.padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        "Predicted Wage",
-                        style = MaterialTheme.typography.titleLarge
-                    )
+                    Text("Predicted Wage", style = MaterialTheme.typography.titleLarge)
                     Spacer(Modifier.height(16.dp))
-                    Text(
-                        "€${resp.predictedWage}/week",
+                    Text( // Fix 5
+                        "€${resp.predictedWage.takeIf { it > 0 } ?: "N/A"}/week",
                         style = MaterialTheme.typography.headlineMedium
                     )
                 }
