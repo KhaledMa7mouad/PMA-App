@@ -3,6 +3,10 @@ package com.example.pmaapp.APIs
 import com.example.pmaapp.database.Player
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 class PlayerPredictionRepository {
     private val api = RetrofitClient.playerPredictionService
@@ -147,36 +151,50 @@ class PlayerPredictionRepository {
             val defendingTotal = (player.interceptions + player.marking + player.standingTackle + player.slidingTackle + player.headingAccuracy) / 5
             val physicalityTotal = (player.jumping + player.stamina + player.strength + player.aggression) / 4
 
-            val ratingFeatures = RatingFeatures(
-                Reactions = player.reactions,
-                ValueEUR = calculateEstimatedValue(player), // Calculate estimated value
-                PassingTotal = passingTotal,
-                Composure = player.composure,
-                DribblingTotal = dribblingTotal,
-                PhysicalityTotal = physicalityTotal,
-                ShotPower = player.shotPower,
-                Vision = player.vision,
-                LongPassing = player.longPassing,
-                ShootingTotal = shootingTotal,
-                ShortPassing = player.shortPassing,
-                Strength = player.strength,
-                BallControl = player.ballControl,
-                Aggression = player.aggression,
-                Stamina = player.stamina,
-                SkillMoves = player.skillMoves,
-                Curve = player.curve,
-                DefendingTotal = defendingTotal,
-                LongShots = player.longShots,
-                FKAccuracy = player.fkAccuracy,
-                Crossing = player.crossing,
-                Volleys = player.volleys
+            // Create a map that matches exactly the structure expected by the API
+            val featuresMap = mapOf(
+                "features" to listOf(
+                    mapOf(
+                        "Reactions" to player.reactions,
+                        "ValueEUR" to calculateEstimatedValue(player),
+                        "PassingTotal" to passingTotal,
+                        "Composure" to player.composure,
+                        "DribblingTotal" to dribblingTotal,
+                        "PhysicalityTotal" to physicalityTotal,
+                        "ShotPower" to player.shotPower,
+                        "Vision" to player.vision,
+                        "LongPassing" to player.longPassing,
+                        "ShootingTotal" to shootingTotal,
+                        "ShortPassing" to player.shortPassing,
+                        "Strength" to player.strength,
+                        "BallControl" to player.ballControl,
+                        "Aggression" to player.aggression,
+                        "Stamina" to player.stamina,
+                        "SkillMoves" to player.skillMoves,
+                        "Curve" to player.curve,
+                        "DefendingTotal" to defendingTotal,
+                        "LongShots" to player.longShots,
+                        "FKAccuracy" to player.fkAccuracy,
+                        "Crossing" to player.crossing,
+                        "Volleys" to player.volleys
+                    )
+                )
             )
 
-            val response = api.predictRating(PredictRatingRequest(listOf(ratingFeatures)))
-            if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+            // Use a raw API call with the map to ensure exact format
+            val requestJson = RetrofitClient.gson.toJson(featuresMap)
+
+            // Updated syntax for creating MediaType and RequestBody
+            val mediaType = "application/json".toMediaTypeOrNull()
+            val requestBody = requestJson.toRequestBody(mediaType)
+
+            val rawResponse = api.predictRatingRaw(requestBody)
+            if (rawResponse.isSuccessful && rawResponse.body() != null) {
+                val responseBody = rawResponse.body()!!.string()
+                val predictRatingResponse = RetrofitClient.gson.fromJson(responseBody, PredictRatingResponse::class.java)
+                Result.success(predictRatingResponse)
             } else {
-                Result.failure(Exception("Failed to predict rating: ${response.errorBody()?.string()}"))
+                Result.failure(Exception("Failed to predict rating: ${rawResponse.errorBody()?.string()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -212,15 +230,42 @@ class PlayerPredictionRepository {
                 Age = player.age,
                 Height = player.height.toInt(),
                 Weight = player.weight.toInt(),
-                Overall = calculateOverall(player), // Calculate overall rating
-                Potential = calculatePotential(player), // Calculate potential
-                ValueEUR = calculateEstimatedValue(player), // Calculate estimated value
-                ReleaseClause = calculateReleaseClause(player) // Calculate release clause
+                Overall = calculateOverall(player),
+                Potential = calculatePotential(player),
+                ValueEUR = calculateEstimatedValue(player),
+                ReleaseClause = calculateReleaseClause(player)
             )
 
             val response = api.predictWage(PredictWageRequest(listOf(wageFeatures)))
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                val responseBody = response.body()!!
+
+                // Handle the case where predictedWage is 0 but prediction array exists
+                if (responseBody.predictedWage == 0 && responseBody.prediction == null) {
+                    // Try to parse the raw JSON response to extract prediction array if needed
+                    val rawResponse = api.predictWageRaw(
+                        RetrofitClient.gson.toJson(PredictWageRequest(listOf(wageFeatures)))
+                            .toRequestBody("application/json".toMediaTypeOrNull())
+                    )
+
+                    if (rawResponse.isSuccessful) {
+                        val rawBody = rawResponse.body()?.string()
+                        if (rawBody != null) {
+                            try {
+                                val fixedResponse = RetrofitClient.gson.fromJson(rawBody, PredictWageResponse::class.java)
+                                Result.success(fixedResponse)
+                            } catch (e: Exception) {
+                                Result.success(responseBody) // Fallback to original response
+                            }
+                        } else {
+                            Result.success(responseBody)
+                        }
+                    } else {
+                        Result.success(responseBody)
+                    }
+                } else {
+                    Result.success(responseBody)
+                }
             } else {
                 Result.failure(Exception("Failed to predict wage: ${response.errorBody()?.string()}"))
             }

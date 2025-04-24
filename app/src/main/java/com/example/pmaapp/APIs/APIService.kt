@@ -1,6 +1,8 @@
 package com.example.pmaapp.APIs
 
 import retrofit2.Response
+import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.http.Body
 import retrofit2.http.POST
 
@@ -13,6 +15,13 @@ interface PlayerPredictionService {
 
     @POST("predictRating")
     suspend fun predictRating(@Body request: PredictRatingRequest): Response<PredictRatingResponse>
+
+    @POST("predict/rating")
+    suspend fun predictRatingRaw(@Body requestBody: RequestBody): Response<ResponseBody>
+
+    @POST("predict-wage")
+    suspend fun predictWageRaw(@Body requestBody: RequestBody): Response<ResponseBody>
+
 
     @POST("predictValue")
     suspend fun predictValue(@Body request: PredictValueRequest): Response<PredictValueResponse>

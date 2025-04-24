@@ -223,6 +223,7 @@ private fun ResultContent(prediction: PredictionResult) {
                 }
             }
         }
+
         PredictionType.SUBSTITUTES -> {
             val resp = prediction.data as com.example.pmaapp.APIs.PredictSubsResponse
             Card(
@@ -287,6 +288,7 @@ private fun ResultContent(prediction: PredictionResult) {
                 }
             }
         }
+
         PredictionType.RATING -> {
             val resp = prediction.data as com.example.pmaapp.APIs.PredictRatingResponse
             Card(
@@ -324,6 +326,7 @@ private fun ResultContent(prediction: PredictionResult) {
                 }
             }
         }
+
         PredictionType.VALUE -> {
             val resp = prediction.data as com.example.pmaapp.APIs.PredictValueResponse
             Card(
@@ -352,7 +355,13 @@ private fun ResultContent(prediction: PredictionResult) {
                     )
                     Spacer(Modifier.height(24.dp))
                     Text(
-                        "€%,d".format(resp.predictedValue),
+                        // Fix: Access the prediction array element if it exists, otherwise fallback to predictedValue field
+                        "€%,d".format(
+                            if (resp.prediction?.isNotEmpty() == true)
+                                resp.prediction[0].toLong()
+                            else
+                                resp.predictedValue ?: 0
+                        ),
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
@@ -361,6 +370,7 @@ private fun ResultContent(prediction: PredictionResult) {
                 }
             }
         }
+
         PredictionType.WAGE -> {
             val resp = prediction.data as com.example.pmaapp.APIs.PredictWageResponse
             Card(
@@ -389,7 +399,8 @@ private fun ResultContent(prediction: PredictionResult) {
                     )
                     Spacer(Modifier.height(24.dp))
                     Text(
-                        "€${resp.predictedWage.takeIf { it > 0 } ?: "N/A"}/week",
+                        // Use the computed finalWage property to get the correct value
+                        "€${resp.finalWage}/week",
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),

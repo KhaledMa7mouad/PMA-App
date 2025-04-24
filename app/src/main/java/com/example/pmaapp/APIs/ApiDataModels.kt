@@ -120,7 +120,8 @@ data class PredictValueRequest(
 )
 
 data class PredictValueResponse(
-    val predictedValue: Long
+    val prediction: List<Double>? = null,
+    val predictedValue: Long? = null
 )
 
 // Wage Prediction
@@ -139,5 +140,14 @@ data class PredictWageRequest(
 )
 
 data class PredictWageResponse(
-    val predictedWage: Int
-)
+    val prediction: List<Double>? = null,
+    val predictedWage: Int = 0
+) {
+    // Computed property to get the wage from either field
+    val finalWage: Int
+        get() = if (prediction?.isNotEmpty() == true) {
+            prediction[0].toInt()
+        } else {
+            predictedWage
+        }
+}
