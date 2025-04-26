@@ -7,14 +7,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.pmaapp.ViewModels.AIPredictionViewModel
 import com.example.pmaapp.ViewModels.ApiModel
@@ -32,6 +33,7 @@ fun AIPlayerSelectionScreen(
     val selectedModel by viewModel.selectedModel.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
+    var isRefreshing by remember { mutableStateOf(false) }
 
     // Redirect to model selection if no model is selected
     LaunchedEffect(selectedModel) {
@@ -50,7 +52,6 @@ fun AIPlayerSelectionScreen(
     }
 
     PMAAppTheme(darkTheme = true, dynamicColor = false) {
-
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -77,6 +78,21 @@ fun AIPlayerSelectionScreen(
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(
+                            onClick = {
+                                isRefreshing = true
+                                viewModel.refreshPlayers()
+                                isRefreshing = false
+                            }
+                        ) {
+                            Icon(
+                                Icons.Default.Refresh,
+                                contentDescription = "Refresh Players",
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
@@ -125,7 +141,13 @@ fun AIPlayerSelectionScreen(
             Box(Modifier
                 .fillMaxSize()
                 .padding(padding)) {
-                if (error != null) {
+
+                if (isRefreshing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                } else if (error != null) {
                     Text(
                         text = error!!,
                         color = MaterialTheme.colorScheme.error,
@@ -167,59 +189,117 @@ fun AIPlayerSelectionScreen(
                         }
 
                         if (allPlayers.isEmpty()) {
-                            Text(
-                                "No players available in the database. Add players first.",
+                            Box(
                                 modifier = Modifier
+                                    .fillMaxWidth()
                                     .padding(16.dp)
-                                    .align(Alignment.CenterHorizontally),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                            )
+                                    .weight(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Card(
+                                    modifier = Modifier
+                                        .padding(16.dp)
+                                        .shadow(
+                                            elevation = 4.dp,
+                                            shape = MaterialTheme.shapes.medium
+                                        ),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surface
+                                    ),
+                                    shape = MaterialTheme.shapes.medium
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(24.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            "No players available",
+                                            style = MaterialTheme.typography.titleMedium.copy(
+                                                fontWeight = FontWeight.Bold
+                                            ),
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Spacer(Modifier.height(12.dp))
+                                        Text(
+                                            "Add players to the database first or click refresh to update the list.",
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                            textAlign = TextAlign.Center
+                                        )
+                                        Spacer(Modifier.height(24.dp))
+                                        Button(
+                                            onClick = { viewModel.refreshPlayers() },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = MaterialTheme.colorScheme.primary,
+                                                contentColor = MaterialTheme.colorScheme.onPrimary
+                                            ),
+                                            shape = MaterialTheme.shapes.medium
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Refresh,
+                                                contentDescription = "Refresh",
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                            Spacer(Modifier.width(8.dp))
+                                            Text("Refresh")
+                                        }
+                                    }
+                                }
+                            }
                         } else {
                             LazyColumn {
                                 items(allPlayers) { player ->
                                     val isSelected = selectedPlayers.contains(player)
-                                    ListItem(
-                                        headlineContent = {
-                                            Text(
-                                                player.name,
-                                                style = MaterialTheme.typography.bodyLarge.copy(
-                                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                                                )
-                                            )
-                                        },
-                                        supportingContent = {
-                                            Text(
-                                                "Position: ${player.position}",
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color = MaterialTheme.colorScheme.onSurface.copy(
-                                                    alpha = 0.7f
-                                                )
-                                            )
-                                        },
-                                        trailingContent = {
-                                            if (isSelected) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Check,
-                                                    contentDescription = "Selected",
-                                                    tint = MaterialTheme.colorScheme.primary
-                                                )
-                                            }
-                                        },
+                                    Card(
                                         modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp, vertical = 8.dp)
                                             .clickable { viewModel.selectPlayer(player) }
-                                            .padding(horizontal = 16.dp),
-                                        colors = ListItemDefaults.colors(
+                                            .shadow(
+                                                elevation = if (isSelected) 6.dp else 2.dp,
+                                                shape = MaterialTheme.shapes.medium
+                                            ),
+                                        colors = CardDefaults.cardColors(
                                             containerColor = if (isSelected)
-                                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                                MaterialTheme.colorScheme.primaryContainer
                                             else
                                                 MaterialTheme.colorScheme.surface
+                                        ),
+                                        shape = MaterialTheme.shapes.medium
+                                    ) {
+                                        ListItem(
+                                            headlineContent = {
+                                                Text(
+                                                    player.name,
+                                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                                    ),
+                                                    color = if (isSelected)
+                                                        MaterialTheme.colorScheme.onPrimaryContainer
+                                                    else
+                                                        MaterialTheme.colorScheme.onSurface
+                                                )
+                                            },
+                                            supportingContent = {
+                                                Text(
+                                                    "Position: ${player.position}",
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    color = if (isSelected)
+                                                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                                                    else
+                                                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                                )
+                                            },
+                                            trailingContent = {
+                                                if (isSelected) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Check,
+                                                        contentDescription = "Selected",
+                                                        tint = MaterialTheme.colorScheme.primary
+                                                    )
+                                                }
+                                            }
                                         )
-                                    )
-                                    Divider(
-                                        modifier = Modifier.padding(horizontal = 16.dp),
-                                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                                    )
+                                    }
                                 }
                             }
                         }
@@ -228,7 +308,4 @@ fun AIPlayerSelectionScreen(
             }
         }
     }
-
-
 }
-

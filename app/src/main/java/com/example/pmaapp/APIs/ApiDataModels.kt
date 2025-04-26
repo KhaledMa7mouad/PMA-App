@@ -101,9 +101,17 @@ data class PredictRatingRequest(
 )
 
 data class PredictRatingResponse(
-    val predictedRating: Float
-)
-
+    val prediction: List<Double>? = null,
+    val predictedRating: Float = 0f
+) {
+    // Computed property to get the rating from either field
+    val finalRating: Float
+        get() = if (prediction?.isNotEmpty() == true) {
+            prediction[0].toFloat()
+        } else {
+            predictedRating
+        }
+}
 // Value Prediction
 data class ValueFeatures(
     val Age: Int,

@@ -157,7 +157,25 @@ class AIPredictionViewModel(application: Application) : AndroidViewModel(applica
     fun clearResult() {
         _predictionResult.value = null
     }
+
+    fun refreshPlayers() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                // Force fetch the latest players from the database
+                _allPlayers.value = db.playerDao.getAllPlayers().first()
+            } catch (e: Exception) {
+                _error.value = "Failed to refresh players: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+
+    }
+
+
 }
+
 
 // Helper extensions
 fun ApiModel.toPredictionType(): PredictionType = when(this) {

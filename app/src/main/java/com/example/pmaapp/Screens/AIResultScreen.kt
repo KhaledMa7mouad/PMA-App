@@ -32,128 +32,131 @@ fun AIResultScreen(
     val error by viewModel.error.collectAsState()
     val selectedModel by viewModel.selectedModel.collectAsState()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        selectedModel?.displayName ?: "Prediction Result",
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold
+    PMAAppTheme(darkTheme = true, dynamicColor = false){
+
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(
+                            selectedModel?.displayName ?: "Prediction Result",
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.Bold
+                            )
                         )
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        navController.navigate(AppRoutes.AI_MODEL_SELECTION_ROUTE) {
-                            popUpTo(AppRoutes.AI_MODEL_SELECTION_ROUTE) { inclusive = true }
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            navController.navigate(AppRoutes.AI_MODEL_SELECTION_ROUTE) {
+                                popUpTo(AppRoutes.AI_MODEL_SELECTION_ROUTE) { inclusive = true }
+                            }
+                        }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
                         }
-                    }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface
+                    )
                 )
-            )
-        },
-        containerColor = MaterialTheme.colorScheme.background
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            when {
-                isLoading -> {
-                    Box(Modifier.fillMaxSize()) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center),
-                            color = MaterialTheme.colorScheme.primary
-                        )
+            },
+            containerColor = MaterialTheme.colorScheme.background
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                when {
+                    isLoading -> {
+                        Box(Modifier.fillMaxSize()) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.align(Alignment.Center),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
-                }
-                error != null -> {
-                    Box(Modifier.fillMaxSize()) {
-                        Card(
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .padding(16.dp)
-                                .shadow(
-                                    elevation = 8.dp,
-                                    shape = MaterialTheme.shapes.medium
+                    error != null -> {
+                        Box(Modifier.fillMaxSize()) {
+                            Card(
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .padding(16.dp)
+                                    .shadow(
+                                        elevation = 8.dp,
+                                        shape = MaterialTheme.shapes.medium
+                                    ),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.errorContainer
                                 ),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.errorContainer
-                            ),
-                            shape = MaterialTheme.shapes.medium
-                        ) {
+                                shape = MaterialTheme.shapes.medium
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(24.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = "Error",
+                                        style = MaterialTheme.typography.titleLarge.copy(
+                                            fontWeight = FontWeight.Bold
+                                        ),
+                                        color = MaterialTheme.colorScheme.onErrorContainer
+                                    )
+                                    Spacer(Modifier.height(12.dp))
+                                    Text(
+                                        text = error!!,
+                                        color = MaterialTheme.colorScheme.onErrorContainer,
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Spacer(Modifier.height(24.dp))
+                                    Button(
+                                        onClick = {
+                                            viewModel.clearError()
+                                            navController.navigateUp()
+                                        },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.primary,
+                                            contentColor = MaterialTheme.colorScheme.onPrimary
+                                        ),
+                                        shape = MaterialTheme.shapes.medium
+                                    ) {
+                                        Text("Try Again")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    result != null -> {
+                        ResultContent(result!!)
+                    }
+                    else -> {
+                        Box(Modifier.fillMaxSize()) {
                             Column(
-                                modifier = Modifier.padding(24.dp),
+                                modifier = Modifier.align(Alignment.Center),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text(
-                                    text = "Error",
-                                    style = MaterialTheme.typography.titleLarge.copy(
-                                        fontWeight = FontWeight.Bold
-                                    ),
-                                    color = MaterialTheme.colorScheme.onErrorContainer
+                                    "No prediction result available",
+                                    modifier = Modifier.padding(16.dp),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                                 )
-                                Spacer(Modifier.height(12.dp))
-                                Text(
-                                    text = error!!,
-                                    color = MaterialTheme.colorScheme.onErrorContainer,
-                                    textAlign = TextAlign.Center
-                                )
-                                Spacer(Modifier.height(24.dp))
                                 Button(
-                                    onClick = {
-                                        viewModel.clearError()
-                                        navController.navigateUp()
-                                    },
+                                    onClick = { navController.navigateUp() },
+                                    modifier = Modifier.padding(16.dp),
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = MaterialTheme.colorScheme.primary,
                                         contentColor = MaterialTheme.colorScheme.onPrimary
                                     ),
                                     shape = MaterialTheme.shapes.medium
                                 ) {
-                                    Text("Try Again")
+                                    Text("Go Back")
                                 }
-                            }
-                        }
-                    }
-                }
-                result != null -> {
-                    ResultContent(result!!)
-                }
-                else -> {
-                    Box(Modifier.fillMaxSize()) {
-                        Column(
-                            modifier = Modifier.align(Alignment.Center),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                "No prediction result available",
-                                modifier = Modifier.padding(16.dp),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                            )
-                            Button(
-                                onClick = { navController.navigateUp() },
-                                modifier = Modifier.padding(16.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary,
-                                    contentColor = MaterialTheme.colorScheme.onPrimary
-                                ),
-                                shape = MaterialTheme.shapes.medium
-                            ) {
-                                Text("Go Back")
                             }
                         }
                     }
@@ -161,7 +164,9 @@ fun AIResultScreen(
             }
         }
     }
-}
+    }
+
+
 
 
 
@@ -317,7 +322,7 @@ private fun ResultContent(prediction: PredictionResult) {
                     )
                     Spacer(Modifier.height(24.dp))
                     Text(
-                        "%.1f".format(resp.predictedRating),
+                        "%.1f".format(resp.finalRating),
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),

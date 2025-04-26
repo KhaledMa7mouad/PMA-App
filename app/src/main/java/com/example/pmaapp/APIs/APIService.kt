@@ -14,9 +14,6 @@ interface PlayerPredictionService {
     suspend fun predictSubstitutes(@Body request: List<PlayerSubstituteData>): Response<PredictSubsResponse>
 
     @POST("predictRating")
-    suspend fun predictRating(@Body request: PredictRatingRequest): Response<PredictRatingResponse>
-
-    @POST("predict/rating")
     suspend fun predictRatingRaw(@Body requestBody: RequestBody): Response<ResponseBody>
 
     @POST("predict-wage")

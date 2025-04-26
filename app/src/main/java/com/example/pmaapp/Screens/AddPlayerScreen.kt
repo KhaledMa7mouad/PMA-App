@@ -20,6 +20,7 @@ import androidx.navigation.NavController
 import com.example.pmaapp.components.ReusableOutlinedTextField
 import com.example.pmaapp.database.AppDatabase
 import com.example.pmaapp.database.Player
+import com.example.pmaapp.ui.theme.FotGreen
 import com.example.pmaapp.ui.theme.PMAAppTheme
 import kotlinx.coroutines.launch
 
@@ -377,11 +378,15 @@ fun AddPlayerScreen(navController: NavController) {
 
                                         db.playerDao.upsertPlayer(player)
 
-                                        // Show success message
-                                        snackbarHostState.showSnackbar("Player saved successfully")
 
-                                        // Navigate back after saving
                                         navController.navigateUp()
+
+                                        // Show success message
+                                        launch {
+                                            snackbarHostState.showSnackbar("Player saved successfully")
+                                        }
+
+
                                     } catch (e: Exception) {
                                         snackbarHostState.showSnackbar("Error saving player: ${e.message}")
                                     }
@@ -391,7 +396,7 @@ fun AddPlayerScreen(navController: NavController) {
                                 .fillMaxWidth()
                                 .height(56.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary
+                                containerColor = FotGreen
                             )
                         ) {
                             Text("Save Player", fontSize = 16.sp)

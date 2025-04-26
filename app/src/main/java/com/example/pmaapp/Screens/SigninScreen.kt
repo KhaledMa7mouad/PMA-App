@@ -1,6 +1,7 @@
 package com.example.pmaapp.Screens
 
 import android.content.ContentValues.TAG
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -23,12 +24,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,17 +63,44 @@ import kotlinx.coroutines.tasks.await
 
 private lateinit var auth: FirebaseAuth
 
+// Keys for SharedPreferences
+private const val PREFS_NAME = "UserCredentials"
+private const val KEY_EMAIL = "email"
+private const val KEY_COACH_NAME = "coachName"
+private const val KEY_TEAM_NAME = "teamName"
+private const val KEY_REMEMBER_USER = "rememberUser"
+
 @Composable
 fun SigninScreen(navController: NavController) {
-    var email by remember { mutableStateOf("") }
-    var coachName by remember { mutableStateOf("") }
-    var teamName by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    // Check if we have saved credentials
+    val savedEmail = prefs.getString(KEY_EMAIL, "") ?: ""
+    val savedCoachName = prefs.getString(KEY_COACH_NAME, "") ?: ""
+    val savedTeamName = prefs.getString(KEY_TEAM_NAME, "") ?: ""
+    val rememberedUser = prefs.getBoolean(KEY_REMEMBER_USER, false)
+
+    var email by remember { mutableStateOf(if (rememberedUser) savedEmail else "") }
+    var coachName by remember { mutableStateOf(if (rememberedUser) savedCoachName else "") }
+    var teamName by remember { mutableStateOf(if (rememberedUser) savedTeamName else "") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var rememberMe by remember { mutableStateOf(rememberedUser) }
+
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
 
     auth = Firebase.auth
+
+    // Check if user is already signed in
+    DisposableEffect(Unit) {
+        val currentUser = auth.currentUser
+        if (currentUser != null && currentUser.isEmailVerified && rememberedUser) {
+            // User is already signed in and remembered
+            navController.navigate("home/$savedCoachName/$savedTeamName")
+        }
+        onDispose { }
+    }
 
     Box(
         modifier = Modifier
@@ -127,12 +158,14 @@ fun SigninScreen(navController: NavController) {
                 },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
                     unfocusedPlaceholderColor = FotGreen,
                     focusedContainerColor = Color.DarkGray,
                     unfocusedContainerColor = Color.DarkGray,
                     focusedBorderColor = FotGreen,
                     unfocusedBorderColor = Color.Gray,
                     focusedLabelColor = FotGreen,
+                    unfocusedLabelColor = Color.White,
                 ),
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
@@ -168,12 +201,14 @@ fun SigninScreen(navController: NavController) {
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
                     unfocusedPlaceholderColor = FotGreen,
                     focusedContainerColor = Color.DarkGray,
                     unfocusedContainerColor = Color.DarkGray,
                     focusedBorderColor = FotGreen,
                     unfocusedBorderColor = Color.Gray,
                     focusedLabelColor = FotGreen,
+                    unfocusedLabelColor = Color.White,
                 ),
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
@@ -184,11 +219,31 @@ fun SigninScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Forgot Password Link
+            // Remember Me checkbox and Forgot Password link in a row
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = rememberMe,
+                        onCheckedChange = { rememberMe = it },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = FotGreen,
+                            uncheckedColor = Color.Gray,
+                            checkmarkColor = Color.White
+                        )
+                    )
+                    Text(
+                        text = "Remember Me",
+                        color = Color.White,
+                        style = TextStyle(fontSize = 14.sp)
+                    )
+                }
+
                 Text(
                     text = "Forgot Password?",
                     color = FotGreen,
@@ -215,12 +270,14 @@ fun SigninScreen(navController: NavController) {
                 },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
                     unfocusedPlaceholderColor = FotGreen,
                     focusedContainerColor = Color.DarkGray,
                     unfocusedContainerColor = Color.DarkGray,
                     focusedBorderColor = FotGreen,
                     unfocusedBorderColor = Color.Gray,
                     focusedLabelColor = FotGreen,
+                    unfocusedLabelColor = Color.White,
                 ),
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
@@ -245,12 +302,14 @@ fun SigninScreen(navController: NavController) {
                 },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
                     unfocusedPlaceholderColor = FotGreen,
                     focusedContainerColor = Color.DarkGray,
                     unfocusedContainerColor = Color.DarkGray,
                     focusedBorderColor = FotGreen,
                     unfocusedBorderColor = Color.Gray,
                     focusedLabelColor = FotGreen,
+                    unfocusedLabelColor = Color.White,
                 ),
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
@@ -272,6 +331,14 @@ fun SigninScreen(navController: NavController) {
 
                             // Check if email is verified
                             if (user != null && user.isEmailVerified) {
+                                // Save credentials if remember me is checked
+                                if (rememberMe) {
+                                    saveUserCredentials(context, email, coachName, teamName, true)
+                                } else {
+                                    // Clear saved credentials if remember me is unchecked
+                                    clearUserCredentials(context)
+                                }
+
                                 // Navigate to home screen
                                 navController.navigate("home/$coachName/$teamName")
                             } else {
@@ -317,7 +384,7 @@ fun SigninScreen(navController: NavController) {
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Don’t have an account?",
+                    text = "Don't have an account?",
                     color = Color.Gray,
                     style = TextStyle(fontSize = 14.sp)
                 )
@@ -333,4 +400,26 @@ fun SigninScreen(navController: NavController) {
             }
         }
     }
+}
+
+// Function to save user credentials
+private fun saveUserCredentials(context: Context, email: String, coachName: String, teamName: String, remember: Boolean) {
+    val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    val editor = sharedPreferences.edit()
+
+    editor.putString(KEY_EMAIL, email)
+    editor.putString(KEY_COACH_NAME, coachName)
+    editor.putString(KEY_TEAM_NAME, teamName)
+    editor.putBoolean(KEY_REMEMBER_USER, remember)
+
+    editor.apply()
+}
+
+// Function to clear saved credentials
+private fun clearUserCredentials(context: Context) {
+    val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    val editor = sharedPreferences.edit()
+
+    editor.clear()
+    editor.apply()
 }
