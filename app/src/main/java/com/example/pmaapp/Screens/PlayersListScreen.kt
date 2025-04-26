@@ -51,10 +51,11 @@ fun PlayersListScreen(navController: NavController) {
         "FWD" to Color(0xFFFFB300)       // Gold/Yellow for forwards
     )
 
-    // Get appropriate color based on player position
-    fun getColorForPosition(position: String): Color {
-        val key = when {
+    // Position category mapping
+    fun getPositionCategory(position: String): String {
+        return when {
             position.contains("GK", ignoreCase = true) -> "GK"
+
             position.contains("CB", ignoreCase = true) ||
                     position.contains("LB", ignoreCase = true) ||
                     position.contains("RB", ignoreCase = true) -> "DEF"
@@ -69,7 +70,22 @@ fun PlayersListScreen(navController: NavController) {
 
             else -> "MID" // Default to midfield if unknown
         }
-        return positionColors[key] ?: Color(0xFF6D4C41) // Brown as fallback
+    }
+
+    // Get appropriate color based on player position
+    fun getColorForPosition(position: String): Color {
+        return positionColors[getPositionCategory(position)] ?: Color(0xFF6D4C41) // Brown as fallback
+    }
+
+    // Get appropriate image based on player position
+    fun getImageForPosition(position: String): Int {
+        return when (getPositionCategory(position)) {
+            "GK" -> R.drawable.goalkeeper
+            "DEF" -> R.drawable.def
+            "MID" -> R.drawable.mid
+            "FWD" -> R.drawable.stricker
+            else -> R.drawable.baseline_supervised_user_circle_24
+        }
     }
 
     PMAAppTheme(darkTheme = true) {
@@ -161,30 +177,8 @@ fun PlayersListScreen(navController: NavController) {
                                     // Player card
                                     CategoryCard(
                                         backgroundColor = getColorForPosition(player.position),
-                                        // Use a default image or position-based image resource
-                                        teamLogoRes = when {
-                                            player.position.contains(
-                                                "GK",
-                                                ignoreCase = true
-                                            ) -> R.drawable.goalkeeper
-
-                                            player.position.contains(
-                                                "CB",
-                                                ignoreCase = true
-                                            ) -> R.drawable.def
-
-                                            player.position.contains(
-                                                "MID",
-                                                ignoreCase = true
-                                            ) -> R.drawable.mid
-
-                                            player.position.contains(
-                                                "FWD",
-                                                ignoreCase = true
-                                            ) -> R.drawable.stricker
-
-                                            else -> R.drawable.baseline_supervised_user_circle_24
-                                        },
+                                        // Use the extracted function to get the appropriate image
+                                        teamLogoRes = getImageForPosition(player.position),
                                         teamName = player.name,
                                         descriptionName = "${player.position} • ${player.age} years",
                                         onClick = {
