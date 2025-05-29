@@ -225,8 +225,7 @@ fun HomeScreen(modifier: Modifier = Modifier , coachName: String, teamName: Stri
             )
 
         }
-        AnimatedHeartRatePulseCard()
-
+        AnimatedHeartRatePulseCard(navController = navController)
 
     }
 }

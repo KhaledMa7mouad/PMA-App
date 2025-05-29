@@ -11,6 +11,7 @@ import androidx.navigation.navArgument
 import com.example.pmaapp.Screens.*
 import com.example.pmaapp.ViewModels.AIPredictionViewModel
 import com.example.pmaapp.screens.AddPlayerScreen
+import com.example.pmaapp.SensorsLayer.SensorScreen
 
 object AppRoutes {
     const val SIGNUP_ROUTE = "signup"
@@ -25,6 +26,7 @@ object AppRoutes {
     const val AI_MODEL_SELECTION_ROUTE = "ai_model_selection"
     const val AI_PLAYER_SELECTION_ROUTE = "ai_player_selection"
     const val AI_RESULT_ROUTE = "ai_result"
+    const val SENSOR_MONITORING_ROUTE = "sensor_monitoring"
 }
 
 @Composable
@@ -65,7 +67,6 @@ fun AppNavHost(modifier: Modifier = Modifier) {
         }
 
         // AI Prediction flow - Fixed with correct screens
-
         composable(AppRoutes.AI_MODEL_SELECTION_ROUTE) {
             AIModelSelectionScreen(navController, viewModel = aiVm)
         }
@@ -74,6 +75,11 @@ fun AppNavHost(modifier: Modifier = Modifier) {
         }
         composable(AppRoutes.AI_RESULT_ROUTE) {
             AIResultScreen(navController, viewModel = aiVm)
+        }
+
+        // Sensor Monitoring Screen
+        composable(AppRoutes.SENSOR_MONITORING_ROUTE) {
+            SensorScreen()
         }
     }
 }

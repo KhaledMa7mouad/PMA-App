@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,10 +29,15 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.pmaapp.R
+import com.example.pmaapp.navigation.AppRoutes
 
 @Composable
-fun AnimatedHeartRatePulseCard(modifier: Modifier = Modifier) {
+fun AnimatedHeartRatePulseCard(
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
     // Create an infinite transition for the scale animation.
     val infiniteTransition = rememberInfiniteTransition()
     val scale by infiniteTransition.animateFloat(
@@ -46,7 +52,10 @@ fun AnimatedHeartRatePulseCard(modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp)
+            .clickable {
+                navController.navigate(AppRoutes.SENSOR_MONITORING_ROUTE)
+            },
         shape = CardDefaults.shape, // or RoundedCornerShape(16.dp)
         colors = CardDefaults.cardColors(containerColor = Color.DarkGray)
     ) {
