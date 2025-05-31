@@ -12,6 +12,7 @@ import com.example.pmaapp.Screens.*
 import com.example.pmaapp.ViewModels.AIPredictionViewModel
 import com.example.pmaapp.screens.AddPlayerScreen
 import com.example.pmaapp.SensorsLayer.SensorScreen
+import com.example.pmaapp.screens.GeminiChatScreen
 
 object AppRoutes {
     const val SIGNUP_ROUTE = "signup"
