@@ -3,9 +3,7 @@ package com.example.pmaapp.APIs
 import com.example.pmaapp.database.Player
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
 class PlayerPredictionRepository {
@@ -86,15 +84,16 @@ class PlayerPredictionRepository {
 
     suspend fun predictSubstitutes(players: List<Player>): Result<PredictSubsResponse> = withContext(Dispatchers.IO) {
         try {
-            // Fix: Properly convert Player objects to PlayerSubstituteData
+            // Fix: Properly convert Player objects to PlayerSubstituteData with all required fields
             val substituteDataList = players.map { player ->
                 PlayerSubstituteData(
-                    Name = player.name ?: "Unknown Player",
+                    Name = player.name,
+                    Height = player.height.toInt(),
                     Weight = player.weight.toInt(),
-                    Overall = calculateOverall(player), // Calculate overall rating
-                    Positions = player.position ?: "",
-                    BestPosition = player.bestPosition ?: "N/A",
-                    PreferredFoot = if ((player.weakFoot?.toIntOrNull() ?: 3) > 3) "Both" else "Right", // Estimate preferred foot
+                    Overall = calculateOverall(player),
+                    Positions = player.position,
+                    BestPosition = player.bestPosition,
+                    PreferredFoot = if ((player.weakFoot.toIntOrNull() ?: 3) > 3) "Left" else "Right",
                     WeakFoot = player.weakFoot.toIntOrNull() ?: 3,
                     SkillMoves = player.skillMoves,
                     AttackingWorkRate = player.attackingWorkRate,
@@ -131,7 +130,10 @@ class PlayerPredictionRepository {
                 )
             }
 
-            val response = api.predictSubstitutes(substituteDataList)
+            // FIX: Wrap the players array in the expected JSON structure
+            val request = PredictSubsRequest(players = substituteDataList)
+            val response = api.predictSubstitutes(request)
+
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)
             } else {

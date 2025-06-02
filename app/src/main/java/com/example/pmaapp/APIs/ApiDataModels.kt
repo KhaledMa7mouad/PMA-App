@@ -1,7 +1,5 @@
 package com.example.pmaapp.APIs
 
-import com.google.gson.annotations.SerializedName
-
 // Position Prediction
 data class PredictPositionRequest(
     val features: List<Any> // Mix of Float and String values
@@ -17,7 +15,7 @@ data class PredictPositionResponse(
         get() = prediction?.firstOrNull()
 }
 
-// Substitutes Prediction
+// Substitutes Prediction - Player data for input
 data class PlayerSubstituteData(
     val Name: String,
     val Weight: Int,
@@ -57,17 +55,30 @@ data class PlayerSubstituteData(
     val Composure: Int,
     val Marking: Int,
     val StandingTackle: Int,
-    val SlidingTackle: Int
+    val SlidingTackle: Int,
+    val Height: Int
 )
 
+// Similar player data from API response
+data class SimilarPlayer(
+    val Name: String,
+    val Similarity: Double
+)
+
+data class PredictSubsRequest(
+    val players: List<PlayerSubstituteData>
+)
+
+data class PredictSubsResponse(
+    val similar_players: List<SimilarPlayer>? = null,
+    val status: String? = null
+)
+
+// Legacy data classes for backwards compatibility (can be removed if not used elsewhere)
 data class SubstituteRecommendation(
     val name: String,
     val score: Float,
     val compatibility: String?
-)
-
-data class PredictSubsResponse(
-    val recommendations: List<SubstituteRecommendation>
 )
 
 // Rating Prediction
@@ -112,6 +123,7 @@ data class PredictRatingResponse(
             predictedRating
         }
 }
+
 // Value Prediction
 data class ValueFeatures(
     val Age: Int,

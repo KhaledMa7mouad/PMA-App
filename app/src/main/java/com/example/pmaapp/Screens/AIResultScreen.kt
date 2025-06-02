@@ -1,4 +1,4 @@
-package com.example.pmaapp.Screens
+package com.example.pmaapp.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -164,15 +164,7 @@ fun AIResultScreen(
             }
         }
     }
-    }
-
-
-
-
-
-
-
-
+}
 
 @Composable
 private fun ResultContent(prediction: PredictionResult) {
@@ -246,46 +238,54 @@ private fun ResultContent(prediction: PredictionResult) {
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Text(
-                        "Recommended Substitutes",
+                        "Similar Players",
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold
                         ),
                         modifier = Modifier.padding(bottom = 16.dp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    LazyColumn {
-                        items(resp.recommendations) { rec ->
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 6.dp)
-                                    .shadow(
-                                        elevation = 4.dp,
-                                        shape = MaterialTheme.shapes.medium
-                                    ),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
-                                ),
-                                shape = MaterialTheme.shapes.medium
-                            ) {
-                                Column(Modifier.padding(16.dp)) {
-                                    Text(
-                                        rec.name,
-                                        style = MaterialTheme.typography.titleMedium.copy(
-                                            fontWeight = FontWeight.Bold
+
+                    // Fix: Use similar_players from the correct data model
+                    val similarPlayers = resp.similar_players ?: emptyList()
+
+                    if (similarPlayers.isEmpty()) {
+                        Text(
+                            "No similar players found",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    } else {
+                        LazyColumn {
+                            items(similarPlayers) { player ->
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 6.dp)
+                                        .shadow(
+                                            elevation = 4.dp,
+                                            shape = MaterialTheme.shapes.medium
                                         ),
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Text(
-                                        "Score: ${rec.score}",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                                    )
-                                    Text(
-                                        "Compatibility: ${rec.compatibility ?: "No data"}",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                                    )
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surface
+                                    ),
+                                    shape = MaterialTheme.shapes.medium
+                                ) {
+                                    Column(Modifier.padding(16.dp)) {
+                                        Text(
+                                            player.Name, // Capital N as per SimilarPlayer data class
+                                            style = MaterialTheme.typography.titleMedium.copy(
+                                                fontWeight = FontWeight.Bold
+                                            ),
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Text(
+                                            "Similarity: ${(player.Similarity * 100).toInt()}%", // Convert to percentage
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -293,7 +293,6 @@ private fun ResultContent(prediction: PredictionResult) {
                 }
             }
         }
-
         PredictionType.RATING -> {
             val resp = prediction.data as com.example.pmaapp.APIs.PredictRatingResponse
             Card(
