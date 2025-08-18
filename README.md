@@ -39,8 +39,9 @@ This innovative app helps coaches, analysts, and players track performance, pred
 ## Screenshots
 
 <!-- Replace the below links with your actual uploaded GitHub assets URLs -->
-![Screenshot 1](https://github.com/user-attachments/assets/example1)  
-![Screenshot 2](https://github.com/user-attachments/assets/example2)  
+ 
+<img width="417" height="878" alt="app1" src="https://github.com/user-attachments/assets/6f72b256-bf81-49a3-8bac-78339b83a474" />
+![Screenshot 2](https://github.com/user-attachments/assets/example2) 
 ![Screenshot 3](https://github.com/user-attachments/assets/example3)  
 ![Screenshot 4](https://github.com/user-attachments/assets/example4)  
 
